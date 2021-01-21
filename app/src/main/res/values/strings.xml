@@ -2,4 +2,13 @@
     <string name="app_name">Smart Pill Box</string>
     <string name="edit_message">Enter a message</string>
     <string name="button_send">Send</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="nav_header_title">Person Name</string>
+    <string name="nav_header_subtitle">Person email</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Schedule</string>
+    <string name="menu_medications">Medication</string>
+    <string name="menu_schedule">Schedule</string>
+    <string name="menu_logout">Logout</string>
+    <string name="menu_account">Account</string>
 </resources>
