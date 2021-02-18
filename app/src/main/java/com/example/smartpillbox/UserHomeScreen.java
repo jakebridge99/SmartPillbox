@@ -1,17 +1,17 @@
 package com.example.smartpillbox;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -32,12 +32,16 @@ public class UserHomeScreen extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        super.onCreate(savedInstanceState);     //sIS loads the users data from last app use
+        setContentView(R.layout.burger_menu);   //Add burger menu to home page (see burger_menu.xml for info)
+
+        //Adds toolbar
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
         sign_out = findViewById(R.id.log_out);
         nameTV = findViewById(R.id.name);
         emailTV = findViewById(R.id.email);
-        idTV = findViewById(R.id.id);
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -59,7 +63,6 @@ public class UserHomeScreen extends AppCompatActivity {
 
             nameTV.setText("Name: "+personName);
             emailTV.setText("Email: "+personEmail);
-            idTV.setText("ID: "+personId);
         }
 
         //Sign out button listener
@@ -71,7 +74,40 @@ public class UserHomeScreen extends AppCompatActivity {
         });
     }
 
-    //Sign out of Google account
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+//            case R.id.nav_home:
+//                // User chose the "Settings" item, show the app settings UI...
+//                return true;
+//
+//            case R.id.nav_schedule:
+//                // User chose the "Favorite" action, mark the current item
+//                // as a favorite...
+//                return true;
+//            case R.id.nav_medications:
+//                // User chose the "Favorite" action, mark the current item
+//                // as a favorite...
+//                return true;
+//
+//            case R.id.nav_account:
+//                // User chose the "Favorite" action, mark the current item
+//                // as a favorite...
+//                return true;
+
+
+            case R.id.nav_logout:
+                signOut();
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    //Sign out of Google account/application
     private void signOut() {
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {

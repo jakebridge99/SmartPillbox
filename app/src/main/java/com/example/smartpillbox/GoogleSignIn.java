@@ -18,8 +18,6 @@ import com.google.android.gms.tasks.Task;
     Code adapted from: https://developers.google.com/identity/sign-in/android/sign-in
 */
 
-
-
 public class GoogleSignIn extends AppCompatActivity {
     int RC_SIGN_IN = 0;
     SignInButton signInButton;
@@ -28,7 +26,7 @@ public class GoogleSignIn extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.sign_in);
 
         //Initializing Views
         signInButton = findViewById(R.id.sign_in_button);
