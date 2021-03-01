@@ -80,9 +80,6 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
             String personFamilyName = acct.getFamilyName();
             String personEmail = acct.getEmail();
             String personId = acct.getId();
-
-            nameTV.setText("Name: "+personName);
-            emailTV.setText("Email: "+personEmail);
         }
 
     }

@@ -92,5 +92,4 @@ public class GoogleSignIn extends AppCompatActivity {
         }
         super.onStart();
     }
-
 }

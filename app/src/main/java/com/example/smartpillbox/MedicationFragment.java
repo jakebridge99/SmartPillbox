@@ -27,9 +27,7 @@ public class MedicationFragment extends Fragment {
     private ListView list;
     private ArrayList<String> listItems;
     private ArrayAdapter<String> adapter;
-
-
-
+    
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -84,5 +82,4 @@ public class MedicationFragment extends Fragment {
             }
         });
     }
-
 }
