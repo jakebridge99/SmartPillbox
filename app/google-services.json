@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "520713183636",
+    "project_id": "smart-pill-box-1609442328047",
+    "storage_bucket": "smart-pill-box-1609442328047.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520713183636:android:6d965a3ac3d9d55dafef81",
+        "android_client_info": {
+          "package_name": "com.example.smartpillbox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520713183636-b33lfragdmnqkqra3i1d8ligr4qf51lq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3CO0wleCwGvqkMQm_yoLSzHKF0RrQOyQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520713183636-b33lfragdmnqkqra3i1d8ligr4qf51lq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
