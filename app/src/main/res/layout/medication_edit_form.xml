@@ -76,8 +76,8 @@
         android:gravity="center_horizontal"/>
 
     <Button
-        android:id="@+id/addButt"
-        android:text="Add"
+        android:id="@+id/saveButt"
+        android:text="Save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -89,8 +89,8 @@
         app:layout_constraintVertical_bias="0.142" />
 
     <Button
-        android:id="@+id/cancel"
-        android:text="cancel"
+        android:id="@+id/delButt"
+        android:text="Delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -101,5 +101,5 @@
         app:layout_constraintTop_toBottomOf="@+id/addInfo"
         app:layout_constraintVertical_bias="0.142" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
 
+</androidx.constraintlayout.widget.ConstraintLayout>
