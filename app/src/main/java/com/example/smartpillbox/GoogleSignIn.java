@@ -1,6 +1,8 @@
 package com.example.smartpillbox;
 
 import android.content.Intent;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +14,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 /*  Home page - Google sign in
     Code adapted from: https://developers.google.com/identity/sign-in/android/sign-in
@@ -22,6 +30,10 @@ public class GoogleSignIn extends AppCompatActivity {
     int RC_SIGN_IN = 0;
     SignInButton signInButton;
     GoogleSignInClient mGoogleSignInClient;
+    private FirebaseAuth mAuth;
+// ...
+// Initialize Firebase Auth
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +47,15 @@ public class GoogleSignIn extends AppCompatActivity {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso);
+
+        // Build a firebase object
+        mAuth = FirebaseAuth.getInstance();
 
         //Run sign in method on click
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -82,12 +98,35 @@ public class GoogleSignIn extends AppCompatActivity {
         }
     }
 
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.w("Firebase Authenticated", "Firebase Authenticated");
+                            Toast.makeText(GoogleSignIn.this, "Firebase Authenticated", Toast.LENGTH_LONG).show();
+                            FirebaseUser user = mAuth.getCurrentUser();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("Firebase Failed", "Firebase Authentication Failed");
+                            Toast.makeText(GoogleSignIn.this, "Firebase Authentication Failed", Toast.LENGTH_LONG).show();
+                        }
+
+                        // ...
+                    }
+                });
+    }
+
     @Override
     protected void onStart() {
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(this);
         if(account != null) {
+            FirebaseUser currentUser = mAuth.getCurrentUser();
             startActivity(new Intent(GoogleSignIn.this, UserHomeScreen.class));
         }
         super.onStart();
