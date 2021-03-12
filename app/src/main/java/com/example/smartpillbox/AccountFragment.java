@@ -14,6 +14,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 public class AccountFragment extends Fragment {
 
+    /*
+    onCreateView is used to create the page. The account page displays the users name, email, and
+    account id. The account id is unique to each Google account and is used to separate users
+    information in the database
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -40,8 +45,6 @@ public class AccountFragment extends Fragment {
             emailTV.setText(personEmail);
             idTV.setText(personId);
         }
-
         return view;
-
     }
 }

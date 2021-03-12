@@ -276,7 +276,6 @@ public class MedicationFragment extends Fragment {
 
         //Delete button
         deleteButton.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View v) {
                 listItems.remove(position);

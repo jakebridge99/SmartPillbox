@@ -30,11 +30,17 @@ public class GoogleSignIn extends AppCompatActivity {
     int RC_SIGN_IN = 0;
     SignInButton signInButton;
     GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth mAuth;
 // ...
 // Initialize Firebase Auth
 
 
+    /*
+    onCreate shows the Google sign-in screen on start up. If the user is brand-new to the system
+    they will have to accept a terms and service contract from Google to allow access to their
+    account information. If the user has previously signed in and not logged-out they will bypass
+    this screen.
+    @param savedInstance
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,10 +59,6 @@ public class GoogleSignIn extends AppCompatActivity {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso);
-
-        // Build a firebase object
-        mAuth = FirebaseAuth.getInstance();
-
         //Run sign in method on click
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,7 +68,10 @@ public class GoogleSignIn extends AppCompatActivity {
         });
     }
 
-    //Prompts user to sign in to their Google account
+
+    /*
+    signIn prompts user to sign in to their Google account
+     */
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -85,6 +90,12 @@ public class GoogleSignIn extends AppCompatActivity {
         }
     }
 
+
+    /*
+    handleSignInResult either signs the user in if their credentials are correct. Otherwise, it will
+    show an error message.
+    @param completedTask : the Google account to sign in
+     */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
@@ -98,35 +109,16 @@ public class GoogleSignIn extends AppCompatActivity {
         }
     }
 
-    private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.w("Firebase Authenticated", "Firebase Authenticated");
-                            Toast.makeText(GoogleSignIn.this, "Firebase Authenticated", Toast.LENGTH_LONG).show();
-                            FirebaseUser user = mAuth.getCurrentUser();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w("Firebase Failed", "Firebase Authentication Failed");
-                            Toast.makeText(GoogleSignIn.this, "Firebase Authentication Failed", Toast.LENGTH_LONG).show();
-                        }
 
-                        // ...
-                    }
-                });
-    }
-
+    /*
+    onStart loads the application when the user successfully signs in
+     */
     @Override
     protected void onStart() {
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(this);
         if(account != null) {
-            FirebaseUser currentUser = mAuth.getCurrentUser();
             startActivity(new Intent(GoogleSignIn.this, UserHomeScreen.class));
         }
         super.onStart();

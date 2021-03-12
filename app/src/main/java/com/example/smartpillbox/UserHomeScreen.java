@@ -29,13 +29,17 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
 
     private DrawerLayout mDrawer;
     GoogleSignInClient mGoogleSignInClient;
-
     //User details
     //These values are taken from the users Google account
     TextView nameTV;    //Users name
     TextView emailTV;   //Users email
     TextView idTV;      //Users id number
 
+
+    /*
+    onCreate makes the burger menu for the app.
+    @param savedInstance :
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);     //sIS loads the users data from last app use
@@ -71,7 +75,6 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso);
-
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(UserHomeScreen.this);
         if (acct != null) {
             // Get values from Google account
@@ -81,9 +84,12 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
             String personEmail = acct.getEmail();
             String personId = acct.getId();
         }
-
     }
 
+
+    /*
+    onBackPressed brings the user to the previous page they were on.
+     */
     @Override
     public void onBackPressed(){
         if(mDrawer.isDrawerOpen(GravityCompat.START)){
@@ -93,6 +99,11 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
         }
     }
 
+
+    /*
+    onNavigationItemSelected is used to switch between the pages of the app in the burger menu.
+    @param item : the selected page to go to
+     */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()){
@@ -116,7 +127,10 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
         return true;
     }
 
-    //Sign out of Google account/application
+
+    /*
+    signOut signs user out of Google account/application
+     */
     private void signOut() {
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
@@ -128,6 +142,4 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
                     }
                 });
     }
-
-
 }
