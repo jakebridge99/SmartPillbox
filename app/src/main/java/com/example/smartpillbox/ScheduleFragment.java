@@ -7,10 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,7 +21,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +35,7 @@ public class ScheduleFragment extends Fragment {
 
     private ArrayList<HashMap> scheduleList;
     private HashMap scheduleMap = new HashMap();
+    private ArrayList<HashMap> tempList = new ArrayList<HashMap>();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Nullable
@@ -45,9 +43,8 @@ public class ScheduleFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view =  inflater.inflate(R.layout.fragment_schedule, container, false);
-        scheduleList = loadFromDatabase();//Load the users medication from firebase
+        loadFromDatabase();//Load the users medication from firebase
         listItems = new ArrayList<>();
-        sortByTime(scheduleList);
         list = (ListView) view.findViewById(R.id.medSchedule);
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, listItems);
         list.setAdapter(adapter);
@@ -55,8 +52,11 @@ public class ScheduleFragment extends Fragment {
     }
 
 
-    public ArrayList loadFromDatabase(){
-        ArrayList<HashMap> tempList = new ArrayList<HashMap>();
+    /*
+    loadFromDatabase loads all of the users previously saved data. This function is called in
+    onCreateView so that the users information is displayed when they open the page.
+     */
+    public void loadFromDatabase(){
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
         if (acct != null) {
             //Retrieve all documents in path users->userId->medications
@@ -68,37 +68,52 @@ public class ScheduleFragment extends Fragment {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
-                                //Adds each document in path to the list of displayed medications
-                                int i = 0;
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     Log.d(TAG, document.getId() + " => " + document.getData());
                                     Map temp = document.getData();
                                     String tempName = (String) temp.get("medName");
                                     String tempTime = (String) temp.get("time");
-                                    scheduleMap.put("time", tempTime);
-                                    scheduleMap.put("medName", tempName);
-                                    tempList.add(i, scheduleMap);
+                                    HashMap tempMap = new HashMap();
+                                    tempMap.put("time", tempTime);
+                                    tempMap.put("medName", tempName);
+                                    tempList.add(tempMap);
                                     Log.d(TAG, "Successfully loaded data!");
-                                    i = i + 1;
                                 }
                             } else {
                                 Log.d(TAG, "Error getting documents: ", task.getException());
                             }
+
+                            Log.d(TAG, "Data to be sorted!" + tempList);
+                            sortByTime(tempList);
                         }
                     });
         }
-        return tempList;
     }
 
 
+    /*
+    sortByTime sorts the users pill schedule by time from 00:00 hrs to 23:59 hrs.
+    @param schedule : the schedule to be sorted
+     */
     public void sortByTime(ArrayList schedule){
-        HashMap tempMap = new HashMap();
-        Collections.sort(schedule);
+        HashMap tempMap;
+        int [] intArray = new int[schedule.size()];
+        //Get all of the times that medications are taken
         for (int i = 0; i < schedule.size(); i++) {
             tempMap = (HashMap) schedule.get(i);
-            String tempName = (String) tempMap.get("medName");
-            listItems.add(tempName);
-            adapter.notifyDataSetChanged();
+            intArray[i] = Integer.parseInt((String) tempMap.get("time"));
+        }
+        //Sort the times
+        Arrays.sort(intArray);
+        //Add the items to the schedule
+        for(int i = 0; i < intArray.length; i++) {
+            for (int j = 0; j < schedule.size(); j++){
+                tempMap = (HashMap) schedule.get(j);
+                if (((String) tempMap.get("time")).equals(String.valueOf(intArray[i]))){
+                    listItems.add((String) tempMap.get("time") + " : " + (String) tempMap.get("medName"));
+                    adapter.notifyDataSetChanged();
+                }
+            }
         }
     }
 }

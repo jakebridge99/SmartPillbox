@@ -203,6 +203,11 @@ public class MedicationFragment extends Fragment {
     }
 
 
+    public void createEvent(MedForm form){
+
+    }
+
+
     /*
     createNewEditDialogue allows a user to edit information for a medication. When they click a
     medication in the list a form is shown with pre-filled data that they have already entered. If
