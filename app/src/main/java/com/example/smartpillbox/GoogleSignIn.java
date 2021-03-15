@@ -1,13 +1,12 @@
 package com.example.smartpillbox;
 
 import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -74,18 +73,9 @@ public class GoogleSignIn extends AppCompatActivity {
                 }
             }
         });
-
-
-
-
-
-
-
-
-
-
-
     }
+
+
     @Override
     public void onStart() {
         super.onStart();
@@ -118,10 +108,12 @@ public class GoogleSignIn extends AppCompatActivity {
         }
     }
 
+
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
+
 
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);

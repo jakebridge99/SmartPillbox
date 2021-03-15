@@ -61,6 +61,16 @@ public class ScheduleFragment extends Fragment {
     BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
+
+
+
+    private BluetoothLeScanner bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+    private boolean scanning;
+    private Handler handler = new Handler();
+
+    // Stops scanning after 10 seconds.
+    private static final long SCAN_PERIOD = 10000;
+
     /*
      onCreateView creates the page layout when the page is opened
      @param inflater
@@ -89,6 +99,42 @@ public class ScheduleFragment extends Fragment {
         });
         return view;
     }
+
+    /*private final ScanCallback leScanCallback = new ScanCallback() {
+                @Override
+                public void onScanResult(int callbackType, ScanResult result) {
+                    super.onScanResult(callbackType, result);
+                    leDeviceListAdapter.addDevice(result.getDevice());
+                    leDeviceListAdapter.notifyDataSetChanged();
+                }
+    };
+
+
+    private void scanLeDevice() {
+        if(bluetoothLeScanner != null) {
+            if (!scanning) {
+                // Stops scanning after a pre-defined scan period.
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        scanning = false;
+                        bluetoothLeScanner.stopScan(leScanCallback);
+                    }
+                }, SCAN_PERIOD);
+
+                scanning = true;
+                bluetoothLeScanner.startScan(leScanCallback);
+            } else {
+                scanning = false;
+                bluetoothLeScanner.stopScan(leScanCallback);
+            }
+        }
+    }*/
+
+
+
+
+
 
     /*
     bluetoothSetUp performs 2 tasks relating to Bluetooth
@@ -168,7 +214,10 @@ public class ScheduleFragment extends Fragment {
             for (int j = 0; j < schedule.size(); j++){
                 tempMap = (HashMap) schedule.get(j);
                 if (((String) tempMap.get("time")).equals(String.valueOf(intArray[i]))){
-                    listItems.add((String) tempMap.get("time") + ":00 - " + (String) tempMap.get("medName"));
+                    if((String) tempMap.get("medName") != null) {
+                        listItems.add((String) tempMap.get("time") + ":00 - " + (String) tempMap.get("medName"));
+                        tempMap.remove("medName");
+                    }
                     adapter.notifyDataSetChanged();
                 }
             }

@@ -21,17 +21,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.type.DateTime;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 public class MedicationFragment extends Fragment {
@@ -157,13 +153,14 @@ public class MedicationFragment extends Fragment {
             int day = 0;
             int hour = 0;
             int time_int = Integer.parseInt(form.getTime());
-            String times = "";
+            String times = form.getUnixTimes();
 
             year = Calendar.getInstance().get(Calendar.YEAR);
             month = Calendar.getInstance().get(Calendar.MONTH);
             day = Calendar.getInstance().get(Calendar.DATE);
             hour = Calendar.getInstance().get(Calendar.HOUR);
 
+            //Time has past on day of, schedule first dosage for next day
             if (hour > time_int) {
                 day += 1;
             }
@@ -370,5 +367,7 @@ public class MedicationFragment extends Fragment {
         public String toString(){
             return medName;
         }
+
+        public String getUnixTimes() {return this.unixTimes;}
     }
 }
