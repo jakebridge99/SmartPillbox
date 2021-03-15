@@ -1,15 +1,16 @@
 package com.example.smartpillbox;
 
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,6 +80,8 @@ public class ScheduleFragment extends Fragment {
         syncButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+
+
                 final String TAG = "Bluetooth Button";
                 Log.d(TAG, "Pressed!");
             }
@@ -575,8 +578,5 @@ public class ScheduleFragment extends Fragment {
             return uuids;
         }
     }
-
-
-
 
 }
