@@ -24,6 +24,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class UserHomeScreen extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -136,6 +137,7 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        FirebaseAuth.getInstance().signOut();
                         Toast.makeText(UserHomeScreen.this,"Successfully signed out", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(UserHomeScreen.this, GoogleSignIn.class));
                         finish();
