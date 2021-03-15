@@ -7,6 +7,8 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -80,7 +82,6 @@ public class ScheduleFragment extends Fragment {
         syncButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-
 
                 final String TAG = "Bluetooth Button";
                 Log.d(TAG, "Pressed!");
