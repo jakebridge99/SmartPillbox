@@ -25,8 +25,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.type.DateTime;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MedicationFragment extends Fragment {
@@ -63,7 +68,7 @@ public class MedicationFragment extends Fragment {
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, listItems);
         list.setAdapter(adapter);
 
-        //Allows items to be selected to edit/delete
+         //Allows items to be selected to edit/delete
         list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -104,7 +109,8 @@ public class MedicationFragment extends Fragment {
         addMedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MedForm form = new MedForm(medName.getText().toString(), desc.getText().toString(), time.getText().toString(), freq.getText().toString(), addInfo.getText().toString());
+                MedForm form = new MedForm(medName.getText().toString(), desc.getText().toString(), time.getText().toString(), freq.getText().toString(), addInfo.getText().toString(), "");
+                convertToUnixTime(form);
                 addToDatabase(form);
                 listItems.add(form.toString());
                 adapter.notifyDataSetChanged();
@@ -128,13 +134,51 @@ public class MedicationFragment extends Fragment {
     medication it will automatically create a new document for the medication.
     @param form : the medication info to be saved.
      */
-    //Adds a newly created medication to the database
     public void addToDatabase(MedForm form){
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
         if (acct != null) {
             //Save in users->userId->medications->medName
             db.collection("users").document(acct.getId()).collection("medications").document(form.getMedName())
                     .set(form);
+        }
+    }
+
+
+    /*
+    convertToUnixTime creates 6 months worth of unix timestamps for when a medication should be
+    taken. 6 months = 6 * 30 = 180
+    @param form: form to add unix timestamps to
+     */
+    public void convertToUnixTime(MedForm form) {
+        GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
+        if (acct != null) {
+            int year = 0;
+            int month = 0;
+            int day = 0;
+            int hour = 0;
+            int time_int = Integer.parseInt(form.getTime());
+            String times = "";
+
+            year = Calendar.getInstance().get(Calendar.YEAR);
+            month = Calendar.getInstance().get(Calendar.MONTH);
+            day = Calendar.getInstance().get(Calendar.DATE);
+            hour = Calendar.getInstance().get(Calendar.HOUR);
+
+            if (hour > time_int) {
+                day += 1;
+            }
+
+            Date scheduleTime = new Date(year - 1900, month, day, time_int, 0);
+            long timeStamp = (scheduleTime.getTime()) / 1000;
+            final String TAG = "DATE";
+            Log.d(TAG, "Date : " + scheduleTime);
+
+            for (int i = 0; i < 180; i++) {
+                //Save in users->userId->medications->medName
+                times = times + timeStamp + "\n";
+                timeStamp += 86400;
+            }
+            form.setUnixTimes(times);//Add the time stamps to the form
         }
     }
 
@@ -274,7 +318,8 @@ public class MedicationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 deleteFromDatabase(oldName[0]);//Delete old data name so there isn't identical data saved in 2 places
-                MedForm updatedForm = new MedForm(medName.getText().toString(), desc.getText().toString(), time.getText().toString(), freq.getText().toString(), addInfo.getText().toString());
+                MedForm updatedForm = new MedForm(medName.getText().toString(), desc.getText().toString(), time.getText().toString(), freq.getText().toString(), addInfo.getText().toString(), "");
+                convertToUnixTime(updatedForm);
                 addToDatabase(updatedForm);
                 listItems.set(position, medName.getText().toString());
                 adapter.notifyDataSetChanged();
@@ -302,18 +347,24 @@ public class MedicationFragment extends Fragment {
         public String time;
         public String freq;
         public String addInfo;
+        public String unixTimes;
 
-        public MedForm(String medName, String desc, String time, String freq, String addInfo){
+        public MedForm(String medName, String desc, String time, String freq, String addInfo, String unixTimes){
             this.medName = medName;
             this.desc = desc;
             this.time = time;
             this.freq = freq;
             this.addInfo = addInfo;
+            this.unixTimes = unixTimes;
         }
 
         public String getMedName(){
             return this.medName;
         }
+
+        public String getTime(){return this.time;}
+
+        public void setUnixTimes(String unix){this.unixTimes = unix;}
 
         @Override
         public String toString(){

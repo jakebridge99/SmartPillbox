@@ -46,8 +46,6 @@ public class ScheduleFragment extends Fragment {
 
     private Button syncButton;
     private static final int REQUEST_ENABLE_BT = 1;
-    private AlertDialog.Builder dialogBuilder;
-    private AlertDialog dialog;
     private ListView list;
     private ArrayList<String> listItems;
     private ArrayAdapter<String> adapter;
@@ -81,9 +79,6 @@ public class ScheduleFragment extends Fragment {
         syncButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-
-
-
                 final String TAG = "Bluetooth Button";
                 Log.d(TAG, "Pressed!");
             }
