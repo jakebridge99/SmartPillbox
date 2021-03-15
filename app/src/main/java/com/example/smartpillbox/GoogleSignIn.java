@@ -62,8 +62,13 @@ public class GoogleSignIn extends AppCompatActivity {
         //Run sign in method on click
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                signIn();
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.sign_in_button:
+                        signIn();
+                        break;
+                    // ...
+                }
             }
         });
     }
