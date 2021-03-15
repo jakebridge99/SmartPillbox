@@ -224,6 +224,7 @@ public class MedicationFragment extends Fragment {
         time = (EditText) medPopupView.findViewById(R.id.time);
         freq = (EditText) medPopupView.findViewById(R.id.freq);
         addInfo = (EditText) medPopupView.findViewById(R.id.addInfo);
+        final String[] oldName = new String[1];
 
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
         if (acct != null) {
@@ -241,6 +242,7 @@ public class MedicationFragment extends Fragment {
 
                                     Map temp = document.getData();
                                     String tempName = (String) temp.get("medName");
+                                    oldName[0] = tempName;
                                     String tempDesc = (String) temp.get("desc");
                                     String tempTime = (String) temp.get("time");
                                     String tempFreq = (String) temp.get("freq");
@@ -271,6 +273,7 @@ public class MedicationFragment extends Fragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                deleteFromDatabase(oldName[0]);//Delete old data name so there isn't identical data saved in 2 places
                 MedForm updatedForm = new MedForm(medName.getText().toString(), desc.getText().toString(), time.getText().toString(), freq.getText().toString(), addInfo.getText().toString());
                 addToDatabase(updatedForm);
                 listItems.set(position, medName.getText().toString());
