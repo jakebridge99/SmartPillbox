@@ -29,17 +29,15 @@ public class GoogleSignIn extends AppCompatActivity {
     int RC_SIGN_IN = 0;
     SignInButton signInButton;
     GoogleSignInClient mGoogleSignInClient;
-
-
     private FirebaseAuth mAuth;
 
 
-    /*
+    /**
     onCreate shows the Google sign-in screen on start up. If the user is brand-new to the system
     they will have to accept a terms and service contract from Google to allow access to their
     account information. If the user has previously signed in and not logged-out they will bypass
     this screen.
-    @param savedInstance
+    @param savedInstanceState
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +57,6 @@ public class GoogleSignIn extends AppCompatActivity {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso);
-
         mAuth = FirebaseAuth.getInstance();
 
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -69,13 +66,15 @@ public class GoogleSignIn extends AppCompatActivity {
                     case R.id.sign_in_button:
                         signIn();
                         break;
-                    // ...
                 }
             }
         });
     }
 
 
+    /**
+    onStart loads the application when the user successfully signs in.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -87,10 +86,15 @@ public class GoogleSignIn extends AppCompatActivity {
     }
 
 
+    /**
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = com.google.android.gms.auth.api.signin.GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -109,12 +113,19 @@ public class GoogleSignIn extends AppCompatActivity {
     }
 
 
+    /**
+    signIn prompts user to sign in to their Google account.
+     */
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
 
+    /**
+     * firebaseAuthWithGoogle authenticates the user to use firebase with their Google credentials.
+     * @param idToken
+     */
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
