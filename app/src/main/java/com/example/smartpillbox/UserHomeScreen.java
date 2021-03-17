@@ -1,8 +1,14 @@
 package com.example.smartpillbox;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +26,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
 
 public class UserHomeScreen extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -27,10 +34,8 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
     GoogleSignInClient mGoogleSignInClient;
     //User details
     //These values are taken from the users Google account
-    TextView nameTV;    //Users name
-    TextView emailTV;   //Users email
-    TextView idTV;      //Users id number
-
+    TextView nameHeader;    //Users name
+    TextView emailHeader;   //Users email
 
     /*
     onCreate makes the burger menu for the app.
@@ -40,7 +45,7 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);     //sIS loads the users data from last app use
         setContentView(R.layout.burger_menu);   //Add burger menu to home page (see burger_menu.xml for info)
-
+        createNotificationChannel(); //Create our notification channel
         //Adds toolbar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
@@ -48,6 +53,12 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
         mDrawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View hView = navigationView.getHeaderView(0);
+        TextView nameHeader = (TextView) hView.findViewById(R.id.name_header);
+        TextView emailHeader = (TextView) hView.findViewById(R.id.email_header);
+        ImageView user_profile = (ImageView) hView.findViewById(R.id.user_pfp);
+
+
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawer, myToolbar,R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close);
@@ -59,9 +70,6 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
                     new AccountFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_home);
         }
-
-        nameTV = findViewById(R.id.name);
-        emailTV = findViewById(R.id.email);
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -79,6 +87,22 @@ public class UserHomeScreen extends AppCompatActivity implements NavigationView.
             String personFamilyName = acct.getFamilyName();
             String personEmail = acct.getEmail();
             String personId = acct.getId();
+
+            nameHeader.setText(personName);
+            emailHeader.setText(personEmail);
+            Picasso.get().load(acct.getPhotoUrl()).into(user_profile);
+        }
+    }
+
+    private void createNotificationChannel(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            CharSequence name = "MedicationReminderChannel";
+            String description = "Channel for Medication Reminder";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("channel1", name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
         }
     }
 
