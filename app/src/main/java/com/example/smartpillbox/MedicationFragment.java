@@ -55,7 +55,7 @@ public class MedicationFragment extends Fragment {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
-    /*
+    /**
      onCreateView creates the page layout when the page is opened
      @param inflater
      @param container
@@ -94,7 +94,8 @@ public class MedicationFragment extends Fragment {
         return view;
     }
 
-    /*
+
+    /**
      createNewMedDialog gives the user a form to fill out when they press the add new medication
      button. If the user presses the add button in the form the details will be added to firebase.
      If the user presses the cancel button in the form nothing will be saved.
@@ -161,12 +162,11 @@ public class MedicationFragment extends Fragment {
     }
 
 
-
     /*
     addToDatabase adds medication info to the users medication list in firebase. If the medication
     already exists it will overwrite the data previously stored for the medication. If it is a new
     medication it will automatically create a new document for the medication.
-    @param form : the medication info to be saved.
+    @param form the medication info to be saved.
      */
     public void addToDatabase(MedForm form){
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
@@ -178,10 +178,10 @@ public class MedicationFragment extends Fragment {
     }
 
 
-    /*
+    /**
     convertToUnixTime creates 6 months worth of unix timestamps for when a medication should be
     taken. 6 months = 6 * 30 = 180
-    @param form: form to add unix timestamps to
+    @param form form to add unix timestamps to
      */
     public void convertToUnixTime(MedForm form) {
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
@@ -218,7 +218,7 @@ public class MedicationFragment extends Fragment {
     }
 
 
-    /*
+    /**
     loadFromDatabase loads all of the users previously saved data. This function is called in
     onCreateView so that the users information is displayed when they open the page.
      */
@@ -252,9 +252,9 @@ public class MedicationFragment extends Fragment {
     }
 
 
-    /*
+    /**
     deleteFromDatabase removes a medication and its information from the database
-    @param medName : the medication to remove
+    @param medName the medication to remove
      */
     public void deleteFromDatabase(String medName){
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
@@ -287,13 +287,13 @@ public class MedicationFragment extends Fragment {
     }
 
 
-    /*
+    /**
     createNewEditDialogue allows a user to edit information for a medication. When they click a
     medication in the list a form is shown with pre-filled data that they have already entered. If
     the user presses save, the information will be updated in the database. If they press delete,
     the selected entry will be deleted.
-    @param name : name of medication to edit
-    @param position : position in list of selected medication
+    @param name name of medication to edit
+    @param position position in list of selected medication
      */
     public void createNewEditDialogue(String name, int position){
         dialogBuilder = new AlertDialog.Builder(this.getContext());
