@@ -1,6 +1,11 @@
 package com.example.smartpillbox;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,7 +30,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.auth.User;
 
+import java.sql.Time;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -35,12 +44,13 @@ public class MedicationFragment extends Fragment {
     private Button addButton;
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
-    private EditText medName, desc, time, freq, addInfo;
-    private Button addMedButton, cancelButton, saveButton, deleteButton;
+    private EditText medName, desc, freq, addInfo;
+    private Button addMedButton, cancelButton, saveButton, deleteButton, timeButt;
     private ListView list;
     private ArrayList<MedForm> forms;
     private ArrayList<String> listItems;
     private ArrayAdapter<String> adapter;
+    private Integer time;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -63,6 +73,7 @@ public class MedicationFragment extends Fragment {
         addButton = (Button) view.findViewById(R.id.addBtn);
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, listItems);
         list.setAdapter(adapter);
+
 
          //Allows items to be selected to edit/delete
         list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -94,7 +105,7 @@ public class MedicationFragment extends Fragment {
         final View medPopupView = getLayoutInflater().inflate(R.layout.medication_form,null);
         medName = (EditText) medPopupView.findViewById(R.id.med_name);
         desc = (EditText) medPopupView.findViewById(R.id.desc);
-        time = (EditText) medPopupView.findViewById(R.id.time);
+        timeButt = (Button) medPopupView.findViewById(R.id.timeButt);
         freq = (EditText) medPopupView.findViewById(R.id.freq);
         addInfo = (EditText) medPopupView.findViewById(R.id.addInfo);
         addMedButton = (Button) medPopupView.findViewById(R.id.addButt);
@@ -103,14 +114,40 @@ public class MedicationFragment extends Fragment {
         dialog = dialogBuilder.create();
         dialog.show();
 
+        timeButt.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        time = hourOfDay;
+                        timeButt.setText(hourOfDay + " : 00");
+                    }
+                }, 12, 0, true);
+                timePickerDialog.show();
+            }
+        });
+
         addMedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MedForm form = new MedForm(medName.getText().toString(), desc.getText().toString(), time.getText().toString(), freq.getText().toString(), addInfo.getText().toString(), "");
+                MedForm form = new MedForm(medName.getText().toString(), desc.getText().toString(), time.toString(), freq.getText().toString(), addInfo.getText().toString(), "");
                 convertToUnixTime(form);
                 addToDatabase(form);
                 listItems.add(form.toString());
                 adapter.notifyDataSetChanged();
+                Intent intent = new Intent(getContext(), ReminderBroadcast.class);
+                intent.putExtra("Med Name", form.medName);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, intent, 0);
+                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(form.time));
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000*60*60*24, pendingIntent);
+
                 dialog.dismiss();
                 }
 
@@ -125,7 +162,7 @@ public class MedicationFragment extends Fragment {
     }
 
 
-    /**
+    /*
     addToDatabase adds medication info to the users medication list in firebase. If the medication
     already exists it will overwrite the data previously stored for the medication. If it is a new
     medication it will automatically create a new document for the medication.
@@ -263,10 +300,25 @@ public class MedicationFragment extends Fragment {
         final View medPopupView = getLayoutInflater().inflate(R.layout.medication_edit_form,null);
         medName = (EditText) medPopupView.findViewById(R.id.med_name);
         desc = (EditText) medPopupView.findViewById(R.id.desc);
-        time = (EditText) medPopupView.findViewById(R.id.time);
+        timeButt = (Button) medPopupView.findViewById(R.id.timeButt);
         freq = (EditText) medPopupView.findViewById(R.id.freq);
         addInfo = (EditText) medPopupView.findViewById(R.id.addInfo);
         final String[] oldName = new String[1];
+
+        timeButt.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        time = hourOfDay;
+                        timeButt.setText(time + " : 00");
+                    }
+                }, 12, 0, true);
+                timePickerDialog.show();
+            }
+        });
 
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
         if (acct != null) {
@@ -292,7 +344,7 @@ public class MedicationFragment extends Fragment {
 
                                     medName.setText(tempName);
                                     desc.setText(tempDesc);
-                                    time.setText(tempTime);
+                                    timeButt.setText(tempTime + " : 00");
                                     freq.setText(tempFreq);
                                     addInfo.setText(tempInfo);
 
@@ -316,7 +368,7 @@ public class MedicationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 deleteFromDatabase(oldName[0]);//Delete old data name so there isn't identical data saved in 2 places
-                MedForm updatedForm = new MedForm(medName.getText().toString(), desc.getText().toString(), time.getText().toString(), freq.getText().toString(), addInfo.getText().toString(), "");
+                MedForm updatedForm = new MedForm(medName.getText().toString(), desc.getText().toString(), time.toString(), freq.getText().toString(), addInfo.getText().toString(), "");
                 convertToUnixTime(updatedForm);
                 addToDatabase(updatedForm);
                 listItems.set(position, medName.getText().toString());
