@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
@@ -46,11 +48,14 @@ public class MedicationFragment extends Fragment {
     private AlertDialog dialog;
     private EditText medName, desc, freq, addInfo;
     private Button addMedButton, cancelButton, saveButton, deleteButton, timeButt;
+    private NumberPicker numPicker;
     private ListView list;
     private ArrayList<MedForm> forms;
     private ArrayList<String> listItems;
     private ArrayAdapter<String> adapter;
     private Integer time;
+    private String[] pickerVals = {"5", "10", "15", "20", "25", "30"};
+    private int valuePicker;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -110,6 +115,16 @@ public class MedicationFragment extends Fragment {
         addInfo = (EditText) medPopupView.findViewById(R.id.addInfo);
         addMedButton = (Button) medPopupView.findViewById(R.id.addButt);
         cancelButton = (Button) medPopupView.findViewById(R.id.cancel);
+        numPicker = (NumberPicker) medPopupView.findViewById(R.id.alarmTime);
+        numPicker.setDisplayedValues(pickerVals);
+        numPicker.setMaxValue(5);
+        numPicker.setMinValue(0);
+        numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                valuePicker = numPicker.getValue();
+            }
+        });
         dialogBuilder.setView(medPopupView);
         dialog = dialogBuilder.create();
         dialog.show();
@@ -132,13 +147,14 @@ public class MedicationFragment extends Fragment {
         addMedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MedForm form = new MedForm(medName.getText().toString(), desc.getText().toString(), time.toString(), freq.getText().toString(), addInfo.getText().toString(), "");
+                MedForm form = new MedForm(medName.getText().toString(), desc.getText().toString(), time.toString(), freq.getText().toString(), addInfo.getText().toString(), "", Integer.toString((valuePicker + 1) * 5));
                 convertToUnixTime(form);
                 addToDatabase(form);
                 listItems.add(form.toString());
                 adapter.notifyDataSetChanged();
                 Intent intent = new Intent(getContext(), ReminderBroadcast.class);
                 intent.putExtra("Med Name", form.medName);
+                intent.putExtra("Extra Info", "Description: " + form.desc + "\n" +  "Frequency: " + form.freq + "\n" + "Additional Info: " + form.addInfo);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, intent, 0);
                 AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
 
@@ -146,8 +162,7 @@ public class MedicationFragment extends Fragment {
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MINUTE, 0);
                 calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(form.time));
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1000*60*60*24, pendingIntent);
-
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 dialog.dismiss();
                 }
 
@@ -303,22 +318,19 @@ public class MedicationFragment extends Fragment {
         timeButt = (Button) medPopupView.findViewById(R.id.timeButt);
         freq = (EditText) medPopupView.findViewById(R.id.freq);
         addInfo = (EditText) medPopupView.findViewById(R.id.addInfo);
-        final String[] oldName = new String[1];
-
-        timeButt.setOnClickListener(new View.OnClickListener(){
-
+        numPicker = (NumberPicker) medPopupView.findViewById(R.id.alarmTime);
+        numPicker.setDisplayedValues(pickerVals);
+        numPicker.setMaxValue(5);
+        numPicker.setMinValue(0);
+        numPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
-            public void onClick(View v) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        time = hourOfDay;
-                        timeButt.setText(time + " : 00");
-                    }
-                }, 12, 0, true);
-                timePickerDialog.show();
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                valuePicker = numPicker.getValue();
             }
         });
+        final String[] oldName = new String[1];
+
+
 
         GoogleSignInAccount acct = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(getActivity());   //Get last signed in account
         if (acct != null) {
@@ -341,12 +353,14 @@ public class MedicationFragment extends Fragment {
                                     String tempTime = (String) temp.get("time");
                                     String tempFreq = (String) temp.get("freq");
                                     String tempInfo = (String) temp.get("addInfo");
+                                    String tempAlarm = (String) temp.get("alarmTime");
 
                                     medName.setText(tempName);
                                     desc.setText(tempDesc);
                                     timeButt.setText(tempTime + " : 00");
                                     freq.setText(tempFreq);
                                     addInfo.setText(tempInfo);
+                                    numPicker.setValue(Integer.parseInt(tempAlarm)/5 - 1);
 
                                     Log.d(TAG, document.getId() + " => " + document.getData());
                                 }
@@ -355,6 +369,20 @@ public class MedicationFragment extends Fragment {
                             }
                         }
                     });
+            timeButt.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View v) {
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                        @Override
+                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                            time = hourOfDay;
+                            timeButt.setText(time + " : 00");
+                        }
+                    }, 12, 0, true);
+                    timePickerDialog.show();
+                }
+            });
         }
 
         saveButton = (Button) medPopupView.findViewById(R.id.saveButt);
@@ -368,7 +396,7 @@ public class MedicationFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 deleteFromDatabase(oldName[0]);//Delete old data name so there isn't identical data saved in 2 places
-                MedForm updatedForm = new MedForm(medName.getText().toString(), desc.getText().toString(), time.toString(), freq.getText().toString(), addInfo.getText().toString(), "");
+                MedForm updatedForm = new MedForm(medName.getText().toString(), desc.getText().toString(), time.toString(), freq.getText().toString(), addInfo.getText().toString(), "", Integer.toString((valuePicker + 1) * 5));
                 convertToUnixTime(updatedForm);
                 addToDatabase(updatedForm);
                 listItems.set(position, medName.getText().toString());
@@ -381,15 +409,33 @@ public class MedicationFragment extends Fragment {
         deleteButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                listItems.remove(position);
-                deleteFromDatabase(name);
-                adapter.notifyDataSetChanged();
-                dialog.dismiss();
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog1, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                listItems.remove(position);
+                                deleteFromDatabase(name);
+                                adapter.notifyDataSetChanged();
+                                dialog1.dismiss();
+                                dialog.dismiss();
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
+
             }
         });
     }
-
-
+    
     //Class for medication forms
     public class MedForm {
         public String medName;
@@ -398,14 +444,16 @@ public class MedicationFragment extends Fragment {
         public String freq;
         public String addInfo;
         public String unixTimes;
+        public String alarmTime;
 
-        public MedForm(String medName, String desc, String time, String freq, String addInfo, String unixTimes){
+        public MedForm(String medName, String desc, String time, String freq, String addInfo, String unixTimes, String alarmTime){
             this.medName = medName;
             this.desc = desc;
             this.time = time;
             this.freq = freq;
             this.addInfo = addInfo;
             this.unixTimes = unixTimes;
+            this.alarmTime = alarmTime;
         }
 
         public String getMedName(){
